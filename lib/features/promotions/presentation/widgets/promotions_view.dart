@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/promotions_cubit.dart';
 import '../cubit/promotions_state.dart';
+import 'category_filter_bar.dart';
 import 'promotions_body.dart';
 
 class PromotionsView extends StatelessWidget {
@@ -24,7 +25,12 @@ class PromotionsView extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(title: const Text('Promotions')),
-        body: const PromotionsBody(),
+        body: const Column(
+          children: [
+            CategoryFilterBar(),
+            Expanded(child: PromotionsBody()),
+          ],
+        ),
       ),
     );
   }
