@@ -92,6 +92,39 @@ void main() {
     expect(find.byKey(const Key('promotion_featured_badge')), findsOneWidget);
   });
 
+  testWidgets('pulling the list down calls refresh', (tester) async {
+    when(() => cubit.refresh()).thenAnswer((_) async {});
+    await pumpWithState(tester, loaded);
+
+    await tester.fling(
+      find.byKey(const Key('promotions_list')),
+      const Offset(0, 400),
+      1000,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    verify(() => cubit.refresh()).called(1);
+  });
+
+  testWidgets('pulling the empty view down calls refresh', (tester) async {
+    when(() => cubit.refresh()).thenAnswer((_) async {});
+    await pumpWithState(
+      tester,
+      const PromotionsState(status: PromotionsStatus.loaded),
+    );
+
+    await tester.fling(
+      find.byKey(const Key('promotions_empty')),
+      const Offset(0, 400),
+      1000,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    verify(() => cubit.refresh()).called(1);
+  });
+
   testWidgets('refresh failure with data shows a SnackBar', (tester) async {
     whenListen(
       cubit,

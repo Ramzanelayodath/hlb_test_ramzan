@@ -16,34 +16,39 @@ class PromotionsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PromotionsCubit, PromotionsState>(
-      buildWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.promotions != current.promotions ||
-          previous.selectedCategory != current.selectedCategory ||
-          (current.status == PromotionsStatus.failure &&
-              previous.failure != current.failure),
-      builder: (context, state) {
-        switch (state.status) {
-          case PromotionsStatus.initial:
-          case PromotionsStatus.loading:
-            return const PromotionsLoadingView();
-          case PromotionsStatus.failure:
-            return PromotionsErrorView(
-              message: state.failure?.message ?? 'Something went wrong.',
-            );
-          case PromotionsStatus.loaded:
-            if (state.isEmpty) {
-              final category = state.selectedCategory;
-              return PromotionsEmptyView(
-                message: state.promotions.isEmpty || category == null
-                    ? 'No promotions right now'
-                    : 'No ${category.label} promotions',
+    // List, empty and error views are all scrollable, so pull-to-refresh
+    // works even when there is nothing to show.
+    return RefreshIndicator(
+      onRefresh: context.read<PromotionsCubit>().refresh,
+      child: BlocBuilder<PromotionsCubit, PromotionsState>(
+        buildWhen: (previous, current) =>
+            previous.status != current.status ||
+            previous.promotions != current.promotions ||
+            previous.selectedCategory != current.selectedCategory ||
+            (current.status == PromotionsStatus.failure &&
+                previous.failure != current.failure),
+        builder: (context, state) {
+          switch (state.status) {
+            case PromotionsStatus.initial:
+            case PromotionsStatus.loading:
+              return const PromotionsLoadingView();
+            case PromotionsStatus.failure:
+              return PromotionsErrorView(
+                message: state.failure?.message ?? 'Something went wrong.',
               );
-            }
-            return PromotionsList(promotions: state.visiblePromotions);
-        }
-      },
+            case PromotionsStatus.loaded:
+              if (state.isEmpty) {
+                final category = state.selectedCategory;
+                return PromotionsEmptyView(
+                  message: state.promotions.isEmpty || category == null
+                      ? 'No promotions right now'
+                      : 'No ${category.label} promotions',
+                );
+              }
+              return PromotionsList(promotions: state.visiblePromotions);
+          }
+        },
+      ),
     );
   }
 }
