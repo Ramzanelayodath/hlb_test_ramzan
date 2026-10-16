@@ -6,6 +6,7 @@ import '../../features/promotions/data/mock/mock_scenario.dart';
 import '../../features/promotions/data/repositories/promotions_repository_impl.dart';
 import '../../features/promotions/domain/repositories/promotions_repository.dart';
 import '../../features/promotions/domain/usecases/get_promotions.dart';
+import '../../features/promotions/presentation/cubit/promotions_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -20,7 +21,8 @@ void configureDependencies({MockScenario? scenario}) {
     ..registerLazySingleton<PromotionsRepository>(
       () => PromotionsRepositoryImpl(sl()),
     )
-    ..registerLazySingleton(() => GetPromotions(sl()));
+    ..registerLazySingleton(() => GetPromotions(sl()))
+    ..registerFactory(() => PromotionsCubit(sl()));
 }
 
 MockScenario _scenarioFromEnv() => MockScenario.fromName(
